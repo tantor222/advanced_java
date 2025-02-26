@@ -1,6 +1,7 @@
 package com.khamitov.tgproject.service;
 
-import com.khamitov.tgproject.model.constant.InlineButtons;
+import com.khamitov.tgproject.model.constant.TextConstants;
+import com.khamitov.tgproject.model.constant.InlineButtonCallbacks;
 import com.khamitov.tgproject.model.dto.TelegramMessageDto;
 import com.khamitov.tgproject.model.dto.TelegramMessageKeyboardDto;
 import com.khamitov.tgproject.model.constant.ActionsEnum;
@@ -40,13 +41,14 @@ public class MessageHandler {
     }
 
     private TelegramMessageDto start(TelegramMessageDto telegramMessageDto) {
-        telegramMessageDto.setText("На старте бот отправляет сообщение с кнопкой:");
+        TelegramMessageDto message = new TelegramMessageDto();
+        message.setText(TextConstants.START_MESSAGE);
         TelegramMessageKeyboardDto button = TelegramMessageKeyboardDto.builder()
-                .text("Посмотреть мои картинки")
-                .callback(InlineButtons.SHOW_IMAGES)
+                .text(InlineButtonCallbacks.SHOW_IMAGES.getText())
+                .callback(InlineButtonCallbacks.SHOW_IMAGES.getCallback())
                 .build();
-        telegramMessageDto.setInlineKeyboard(List.of(List.of(button)));
-        telegramMessageDto.setAction(ActionsEnum.SEND_MESSAGE);
-        return telegramMessageDto;
+        message.setInlineKeyboard(List.of(List.of(button)));
+        message.setAction(ActionsEnum.SEND_MESSAGE);
+        return message;
     }
 }

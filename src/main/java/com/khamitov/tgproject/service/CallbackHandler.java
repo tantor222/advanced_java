@@ -1,6 +1,7 @@
 package com.khamitov.tgproject.service;
 
-import com.khamitov.tgproject.model.constant.InlineButtons;
+import com.khamitov.tgproject.model.constant.InlineButtonCallbacks;
+import com.khamitov.tgproject.model.constant.TextConstants;
 import com.khamitov.tgproject.model.dto.TelegramMessageDto;
 import com.khamitov.tgproject.model.dto.TelegramMessageKeyboardDto;
 import com.khamitov.tgproject.model.constant.ActionsEnum;
@@ -28,9 +29,9 @@ public class CallbackHandler {
     @PostConstruct
     @SuppressWarnings("unused")
     public void init() {
-        strategies.put(InlineButtons.SHOW_IMAGES, this::nextImage);
-        strategies.put(InlineButtons.NEXT_IMAGE, this::nextImage);
-        strategies.put(InlineButtons.GO_BACK, this::goBack);
+        strategies.put(InlineButtonCallbacks.SHOW_IMAGES.getCallback(), this::nextImage);
+        strategies.put(InlineButtonCallbacks.NEXT_IMAGE.getCallback(), this::nextImage);
+        strategies.put(InlineButtonCallbacks.GO_BACK.getCallback(), this::goBack);
     }
 
     public TelegramMessageDto handleCommands(TelegramMessageDto message) {
@@ -48,13 +49,13 @@ public class CallbackHandler {
     private TelegramMessageDto nextImage(TelegramMessageDto message) {
         String[] directionLine = message.getCallback().split(DIRECTION_SEP);
         UUID direction = directionLine.length > 1 ? UUID.fromString(directionLine[1]) : null;
-        UUID image = imageService.getNextImage(message.getUserId(), direction);
+        UUID image = imageService.getNextImage(message.getChatId(), direction);
         if (image == null) {
-            message.setText("Картинка не найдена");
+            message.setText(TextConstants.IMAGE_NOT_FOUND);
             message.setAction(ActionsEnum.SEND_MESSAGE);
             var button = TelegramMessageKeyboardDto.builder()
-                    .text("Посмотреть мои картинки")
-                    .callback(InlineButtons.SHOW_IMAGES)
+                    .text(InlineButtonCallbacks.SHOW_IMAGES.getText())
+                    .callback(InlineButtonCallbacks.SHOW_IMAGES.getCallback())
                     .build();
             message.setInlineKeyboard(List.of(List.of(button)));
             return message;
@@ -63,12 +64,12 @@ public class CallbackHandler {
         message.setAction(ActionsEnum.SEND_PHOTO);
         message.setAttachment(file);
         TelegramMessageKeyboardDto buttonNext = TelegramMessageKeyboardDto.builder()
-                .callback(InlineButtons.NEXT_IMAGE + DIRECTION_SEP + image)
-                .text("Далее")
+                .callback(InlineButtonCallbacks.NEXT_IMAGE.getCallback() + DIRECTION_SEP + image)
+                .text(InlineButtonCallbacks.NEXT_IMAGE.getText())
                 .build();
         TelegramMessageKeyboardDto buttonBack = TelegramMessageKeyboardDto.builder()
-                .callback(InlineButtons.GO_BACK)
-                .text("Назад")
+                .callback(InlineButtonCallbacks.GO_BACK.getCallback())
+                .text(InlineButtonCallbacks.GO_BACK.getText())
                 .build();
         message.setInlineKeyboard(List.of(
                 List.of(buttonNext),
@@ -78,10 +79,10 @@ public class CallbackHandler {
     }
 
     private TelegramMessageDto goBack(TelegramMessageDto message) {
-        message.setText("Выберете действие");
+        message.setText(TextConstants.SELECT_ACTION);
         TelegramMessageKeyboardDto button = TelegramMessageKeyboardDto.builder()
-                .text("Посмотреть мои картинки")
-                .callback(InlineButtons.SHOW_IMAGES)
+                .text(InlineButtonCallbacks.SHOW_IMAGES.getText())
+                .callback(InlineButtonCallbacks.SHOW_IMAGES.getCallback())
                 .build();
         message.setInlineKeyboard(List.of(List.of(button)));
         message.setAction(ActionsEnum.SEND_MESSAGE);

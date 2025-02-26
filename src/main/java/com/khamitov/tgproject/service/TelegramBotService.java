@@ -27,7 +27,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRem
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
-import org.telegram.telegrambots.meta.api.objects.webapp.WebAppInfo;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.File;
@@ -47,13 +46,13 @@ import java.util.function.Consumer;
 
 @Slf4j
 @Service
-@SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal", "UnusedDeclaration"})
+@SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
 public class TelegramBotService extends TelegramLongPollingBot {
 
-    private String botUsername;
-    private String botToken;
+    private final String botUsername;
+    private final String botToken;
     private static final String MARKDOWN_MODE = "MarkdownV2";
-    private final Map<ActionsEnum, Consumer<TelegramMessageDto>> strategies = new EnumMap<>(ActionsEnum.class);
+    private final Map<ActionsEnum, Consumer<TelegramMessageDto>> consumers = new EnumMap<>(ActionsEnum.class);
 
     private final MessageHandler messageHandler;
     private final CallbackHandler callbackHandler;
@@ -77,12 +76,12 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
     @PostConstruct
     public void init() {
-        strategies.put(ActionsEnum.SEND_MESSAGE, this::sendMessage);
-        strategies.put(ActionsEnum.SEND_PHOTO, this::sendPhoto);
-        strategies.put(ActionsEnum.EDIT_MESSAGE, this::editMessage);
-        strategies.put(ActionsEnum.EDIT_MEDIA_CAPTION, this::editMediaCaption);
-        strategies.put(ActionsEnum.EDIT_MEDIA, this::editMedia);
-        strategies.put(ActionsEnum.EDIT_MESSAGE_REPLY_MARKUP, this::editMessageReplyMarkup);
+        consumers.put(ActionsEnum.SEND_MESSAGE, this::sendMessage);
+        consumers.put(ActionsEnum.SEND_PHOTO, this::sendPhoto);
+        consumers.put(ActionsEnum.EDIT_MESSAGE, this::editMessage);
+        consumers.put(ActionsEnum.EDIT_MEDIA_CAPTION, this::editMediaCaption);
+        consumers.put(ActionsEnum.EDIT_MEDIA, this::editMedia);
+        consumers.put(ActionsEnum.EDIT_MESSAGE_REPLY_MARKUP, this::editMessageReplyMarkup);
     }
 
     @Override
@@ -106,7 +105,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     private void handleMessage(Update update) {
         TelegramMessageDto message = telegramMessageMapping.fromMessage(update);
         TelegramMessageDto response = messageHandler.handleCommands(message);
-        strategies.get(response.getAction()).accept(response);
+        consumers.get(response.getAction()).accept(response);
     }
 
     private void handlePhoto(Update update) {
@@ -121,7 +120,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 var file = execute(getFile);
                 File photoFile = downloadFile(file);
                 TelegramMessageDto response = photoHandler.handleCommands(update, photoFile);
-                strategies.get(response.getAction()).accept(response);
+                consumers.get(response.getAction()).accept(response);
             } catch (TelegramApiException err) {
                 log.error("", err);
                 sendErrorMessage(update, err.getMessage());
@@ -132,7 +131,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     private void handleCallback(Update update) {
         TelegramMessageDto message = telegramMessageMapping.fromCallback(update);
         TelegramMessageDto response = callbackHandler.handleCommands(message);
-        strategies.get(response.getAction()).accept(response);
+        consumers.get(response.getAction()).accept(response);
     }
 
     private void sendErrorMessage(Update update, String msg) {
@@ -161,7 +160,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
         messageText.setParseMode(MARKDOWN_MODE);
         messageText.setMessageId(Integer.valueOf(message.getMessageId()));
-        messageText.setChatId(message.getUserId());
+        messageText.setChatId(message.getChatId());
         messageText.setText(message.getText());
 
         // при изменении сообщения кнопки только самого сообщения
@@ -182,7 +181,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         var messageText = new EditMessageReplyMarkup();
 
         messageText.setMessageId(Integer.valueOf(message.getMessageId()));
-        messageText.setChatId(message.getUserId());
+        messageText.setChatId(message.getChatId());
 
         // при изменении сообщения кнопки только самого сообщения
         if (inlineKeyboard != null && !inlineKeyboard.isEmpty()) {
@@ -201,7 +200,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         var messageText = new SendMessage();
 
         messageText.setParseMode(MARKDOWN_MODE);
-        messageText.setChatId(message.getUserId());
+        messageText.setChatId(message.getChatId());
         messageText.setText(message.getText());
 
         // тут кнопки на выбор, можно как сообщение с кнопками, а можно и клавиатуру
@@ -231,7 +230,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             messageText.setParseMode(MARKDOWN_MODE);
             Path path = Paths.get(message.getAttachment());
             messageText.setPhoto(new InputFile(Files.newInputStream(path), message.getAttachment()));
-            messageText.setChatId(message.getUserId());
+            messageText.setChatId(message.getChatId());
             messageText.setCaption(message.getText());
 
             // тут кнопки на выбор, можно как сообщение с кнопками, а можно и клавиатуру
@@ -262,7 +261,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
 
         messageText.setParseMode(MARKDOWN_MODE);
         messageText.setMessageId(Integer.valueOf(message.getMessageId()));
-        messageText.setChatId(message.getUserId());
+        messageText.setChatId(message.getChatId());
         messageText.setCaption(message.getText());
 
         // при изменении сообщения кнопки только самого сообщения
@@ -284,7 +283,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
         photo.setParseMode(MARKDOWN_MODE);
 
         messageText.setMessageId(Integer.valueOf(message.getMessageId()));
-        messageText.setChatId(message.getUserId());
+        messageText.setChatId(message.getChatId());
         messageText.setMedia(photo);
 
         // при изменении сообщения кнопки только самого сообщения
@@ -307,12 +306,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             List<InlineKeyboardButton> buttons = new ArrayList<>();
             for (var button : row) {
                 var keyboardButton = new InlineKeyboardButton(button.getText());
-                if (Objects.nonNull(button.getAppUrl())) {
-                    keyboardButton.setWebApp(WebAppInfo.builder()
-                            .url(button.getAppUrl())
-                            .build()
-                    );
-                } else if (Objects.nonNull(button.getCallback())) {
+                if (Objects.nonNull(button.getCallback())) {
                     keyboardButton.setCallbackData(button.getCallback());
                 }
                 buttons.add(keyboardButton);

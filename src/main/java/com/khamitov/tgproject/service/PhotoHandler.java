@@ -1,7 +1,8 @@
 package com.khamitov.tgproject.service;
 
 import com.khamitov.tgproject.mapping.TelegramMessageMapping;
-import com.khamitov.tgproject.model.constant.InlineButtons;
+import com.khamitov.tgproject.model.constant.InlineButtonCallbacks;
+import com.khamitov.tgproject.model.constant.TextConstants;
 import com.khamitov.tgproject.model.dto.TelegramMessageDto;
 import com.khamitov.tgproject.model.dto.TelegramMessageKeyboardDto;
 import com.khamitov.tgproject.model.constant.ActionsEnum;
@@ -26,11 +27,11 @@ public class PhotoHandler {
         TelegramMessageDto message = telegramMessageMapping.fromMessage(update);
         message.setAction(ActionsEnum.SEND_MESSAGE);
         try {
-            imageRepository.saveImage(message.getUserId(), file.getAbsolutePath());
-            message.setText("Картинка сохранена");
+            imageRepository.saveImage(message.getChatId(), file.getAbsolutePath());
+            message.setText(TextConstants.IMAGE_SAVED);
             TelegramMessageKeyboardDto button = TelegramMessageKeyboardDto.builder()
-                    .text("Посмотреть мои картинки")
-                    .callback(InlineButtons.SHOW_IMAGES)
+                    .text(InlineButtonCallbacks.SHOW_IMAGES.getText())
+                    .callback(InlineButtonCallbacks.SHOW_IMAGES.getCallback())
                     .build();
             message.setInlineKeyboard(List.of(List.of(button)));
             return message;

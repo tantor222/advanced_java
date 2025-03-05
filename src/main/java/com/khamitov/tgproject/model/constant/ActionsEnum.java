@@ -7,10 +7,6 @@ public enum ActionsEnum {
      */
     SEND_MESSAGE,
     /**
-     * Изменить текстовое сообщение
-     */
-    EDIT_MESSAGE,
-    /**
      * Отправить что-то там еще
      */
     SEND_MEDIA,

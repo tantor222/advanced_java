@@ -78,7 +78,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
     public void init() {
         consumers.put(ActionsEnum.SEND_MESSAGE, this::sendMessage);
         consumers.put(ActionsEnum.SEND_PHOTO, this::sendPhoto);
-        consumers.put(ActionsEnum.EDIT_MESSAGE, this::editMessage);
         consumers.put(ActionsEnum.EDIT_MEDIA_CAPTION, this::editMediaCaption);
         consumers.put(ActionsEnum.EDIT_MEDIA, this::editMedia);
         consumers.put(ActionsEnum.EDIT_MESSAGE_REPLY_MARKUP, this::editMessageReplyMarkup);
@@ -147,28 +146,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }
-    }
-
-    /**
-     * Поменять текст в сообщении без картинки
-     *
-     * @param message {@link TelegramMessageDto}
-     */
-    private void editMessage(TelegramMessageDto message) {
-        var inlineKeyboard = message.getInlineKeyboard();
-        var messageText = new EditMessageText();
-
-        messageText.setParseMode(MARKDOWN_MODE);
-        messageText.setMessageId(Integer.valueOf(message.getMessageId()));
-        messageText.setChatId(message.getChatId());
-        messageText.setText(message.getText());
-
-        // при изменении сообщения кнопки только самого сообщения
-        if (inlineKeyboard != null && !inlineKeyboard.isEmpty()) {
-            var keyboard = getInlineKeyboard(inlineKeyboard);
-            messageText.setReplyMarkup(keyboard);
-        }
-        sendMessage(messageText);
     }
 
     /**

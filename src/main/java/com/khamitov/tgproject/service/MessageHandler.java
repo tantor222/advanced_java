@@ -49,6 +49,7 @@ public class MessageHandler {
                 .build();
         message.setInlineKeyboard(List.of(List.of(button)));
         message.setAction(ActionsEnum.SEND_MESSAGE);
+        message.setChatId(telegramMessageDto.getChatId());
         return message;
     }
 }

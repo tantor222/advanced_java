@@ -23,21 +23,21 @@ import java.util.function.Function;
 public class CallbackHandler {
 
     private static final String DIRECTION_SEP = ":";
-    private final Map<String, Function<TelegramMessageDto, TelegramMessageDto>> strategies = new HashMap<>();
+    private final Map<String, Function<TelegramMessageDto, TelegramMessageDto>> consumers = new HashMap<>();
     private final ImageService imageService;
 
     @PostConstruct
     @SuppressWarnings("unused")
     public void init() {
-        strategies.put(InlineButtonCallbacks.SHOW_IMAGES.getCallback(), this::nextImage);
-        strategies.put(InlineButtonCallbacks.NEXT_IMAGE.getCallback(), this::nextImage);
-        strategies.put(InlineButtonCallbacks.GO_BACK.getCallback(), this::goBack);
+        consumers.put(InlineButtonCallbacks.SHOW_IMAGES.getCallback(), this::nextImage);
+        consumers.put(InlineButtonCallbacks.NEXT_IMAGE.getCallback(), this::nextImage);
+        consumers.put(InlineButtonCallbacks.GO_BACK.getCallback(), this::goBack);
     }
 
     public TelegramMessageDto handleCommands(TelegramMessageDto message) {
         try {
             String[] directionLine = message.getCallback().split(DIRECTION_SEP);
-            return Optional.ofNullable(strategies.get(directionLine[0]))
+            return Optional.ofNullable(consumers.get(directionLine[0]))
                     .map(fn -> fn.apply(message))
                     .orElse(null);
         } catch (RuntimeException exception) {
@@ -51,18 +51,18 @@ public class CallbackHandler {
         UUID direction = directionLine.length > 1 ? UUID.fromString(directionLine[1]) : null;
         UUID image = imageService.getNextImage(message.getChatId(), direction);
         if (image == null) {
-            message.setText(TextConstants.IMAGE_NOT_FOUND);
-            message.setAction(ActionsEnum.SEND_MESSAGE);
             var button = TelegramMessageKeyboardDto.builder()
                     .text(InlineButtonCallbacks.SHOW_IMAGES.getText())
                     .callback(InlineButtonCallbacks.SHOW_IMAGES.getCallback())
                     .build();
-            message.setInlineKeyboard(List.of(List.of(button)));
-            return message;
+            return TelegramMessageDto.builder()
+                    .text(TextConstants.IMAGE_NOT_FOUND)
+                    .action(ActionsEnum.SEND_MESSAGE)
+                    .chatId(message.getChatId())
+                    .inlineKeyboard(List.of(List.of(button)))
+                    .build();
         }
         String file = imageService.getImagePath(image);
-        message.setAction(ActionsEnum.SEND_PHOTO);
-        message.setAttachment(file);
         TelegramMessageKeyboardDto buttonNext = TelegramMessageKeyboardDto.builder()
                 .callback(InlineButtonCallbacks.NEXT_IMAGE.getCallback() + DIRECTION_SEP + image)
                 .text(InlineButtonCallbacks.NEXT_IMAGE.getText())
@@ -71,21 +71,27 @@ public class CallbackHandler {
                 .callback(InlineButtonCallbacks.GO_BACK.getCallback())
                 .text(InlineButtonCallbacks.GO_BACK.getText())
                 .build();
-        message.setInlineKeyboard(List.of(
-                List.of(buttonNext),
-                List.of(buttonBack)
-        ));
-        return message;
+        return TelegramMessageDto.builder()
+                .action(ActionsEnum.SEND_PHOTO)
+                .attachment(file)
+                .chatId(message.getChatId())
+                .inlineKeyboard(List.of(
+                        List.of(buttonNext),
+                        List.of(buttonBack)
+                ))
+                .build();
     }
 
     private TelegramMessageDto goBack(TelegramMessageDto message) {
-        message.setText(TextConstants.SELECT_ACTION);
         TelegramMessageKeyboardDto button = TelegramMessageKeyboardDto.builder()
                 .text(InlineButtonCallbacks.SHOW_IMAGES.getText())
                 .callback(InlineButtonCallbacks.SHOW_IMAGES.getCallback())
                 .build();
-        message.setInlineKeyboard(List.of(List.of(button)));
-        message.setAction(ActionsEnum.SEND_MESSAGE);
-        return message;
+        return TelegramMessageDto.builder()
+                .action(ActionsEnum.SEND_MESSAGE)
+                .text(TextConstants.SELECT_ACTION)
+                .chatId(message.getChatId())
+                .inlineKeyboard(List.of(List.of(button)))
+                .build();
     }
 }

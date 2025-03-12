@@ -24,21 +24,26 @@ public class PhotoHandler {
     private final TelegramMessageMapping telegramMessageMapping;
 
     public TelegramMessageDto handleCommands(Update update, File file) {
-        TelegramMessageDto message = telegramMessageMapping.fromMessage(update);
-        message.setAction(ActionsEnum.SEND_MESSAGE);
+        Long chatId = update.getMessage().getFrom().getId();
         try {
-            imageRepository.saveImage(message.getChatId(), file.getAbsolutePath());
-            message.setText(TextConstants.IMAGE_SAVED);
+            imageRepository.saveImage(chatId, file.getAbsolutePath());
             TelegramMessageKeyboardDto button = TelegramMessageKeyboardDto.builder()
                     .text(InlineButtonCallbacks.SHOW_IMAGES.getText())
                     .callback(InlineButtonCallbacks.SHOW_IMAGES.getCallback())
                     .build();
-            message.setInlineKeyboard(List.of(List.of(button)));
-            return message;
+            return TelegramMessageDto.builder()
+                    .chatId(chatId)
+                    .action(ActionsEnum.SEND_MESSAGE)
+                    .text(TextConstants.IMAGE_SAVED)
+                    .inlineKeyboard(List.of(List.of(button)))
+                    .build();
         } catch (Exception e) {
             log.error(e.getMessage());
-            message.setText(e.getMessage());
-            return message;
+            return TelegramMessageDto.builder()
+                    .chatId(chatId)
+                    .action(ActionsEnum.SEND_MESSAGE)
+                    .text(e.getMessage())
+                    .build();
         }
     }
 }

@@ -21,17 +21,17 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class MessageHandler {
 
-    private final Map<String, Function<TelegramMessageDto, TelegramMessageDto>> strategies = new HashMap<>();
+    private final Map<String, Function<TelegramMessageDto, TelegramMessageDto>> consumers = new HashMap<>();
 
     @PostConstruct
     @SuppressWarnings("unused")
     public void init() {
-        strategies.put("/start", this::start);
+        consumers.put("/start", this::start);
     }
 
     public TelegramMessageDto handleCommands(TelegramMessageDto message) {
         try {
-            return Optional.ofNullable(strategies.get(message.getText()))
+            return Optional.ofNullable(consumers.get(message.getText()))
                     .map(fn -> fn.apply(message))
                     .orElse(null);
         } catch (RuntimeException exception) {
@@ -41,15 +41,16 @@ public class MessageHandler {
     }
 
     private TelegramMessageDto start(TelegramMessageDto telegramMessageDto) {
-        TelegramMessageDto message = new TelegramMessageDto();
-        message.setText(TextConstants.START_MESSAGE);
         TelegramMessageKeyboardDto button = TelegramMessageKeyboardDto.builder()
                 .text(InlineButtonCallbacks.SHOW_IMAGES.getText())
                 .callback(InlineButtonCallbacks.SHOW_IMAGES.getCallback())
                 .build();
-        message.setInlineKeyboard(List.of(List.of(button)));
-        message.setAction(ActionsEnum.SEND_MESSAGE);
-        message.setChatId(telegramMessageDto.getChatId());
-        return message;
+
+        return TelegramMessageDto.builder()
+                .chatId(telegramMessageDto.getChatId())
+                .text(TextConstants.START_MESSAGE)
+                .inlineKeyboard(List.of(List.of(button)))
+                .action(ActionsEnum.SEND_MESSAGE)
+                .build();
     }
 }

@@ -1,6 +1,5 @@
 package com.khamitov.tgproject.service;
 
-import com.khamitov.tgproject.mapping.TelegramMessageMapping;
 import com.khamitov.tgproject.model.constant.InlineButtonCallbacks;
 import com.khamitov.tgproject.model.constant.TextConstants;
 import com.khamitov.tgproject.model.dto.TelegramMessageDto;
@@ -21,7 +20,6 @@ import java.util.List;
 public class PhotoHandler {
 
     private final ImageRepository imageRepository;
-    private final TelegramMessageMapping telegramMessageMapping;
 
     public TelegramMessageDto handleCommands(Update update, File file) {
         Long chatId = update.getMessage().getFrom().getId();

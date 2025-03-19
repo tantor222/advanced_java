@@ -13,13 +13,9 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.GetFile;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageCaption;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageMedia;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
@@ -45,7 +41,6 @@ import java.util.function.Consumer;
 
 @Slf4j
 @Service
-@SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
 public class TelegramBotService extends TelegramLongPollingBot {
 
     private final String botUsername;
@@ -77,9 +72,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
     public void init() {
         consumers.put(ActionsEnum.SEND_MESSAGE, this::sendMessage);
         consumers.put(ActionsEnum.SEND_PHOTO, this::sendPhoto);
-        consumers.put(ActionsEnum.EDIT_MEDIA_CAPTION, this::editMediaCaption);
-        consumers.put(ActionsEnum.EDIT_MEDIA, this::editMedia);
-        consumers.put(ActionsEnum.EDIT_MESSAGE_REPLY_MARKUP, this::editMessageReplyMarkup);
     }
 
     @Override
@@ -148,26 +140,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
     }
 
     /**
-     * Поменять клавиатуру сообщения
-     *
-     * @param message {@link TelegramMessageDto}
-     */
-    private void editMessageReplyMarkup(TelegramMessageDto message) {
-        List<List<TelegramMessageKeyboardDto>> inlineKeyboard = message.getInlineKeyboard();
-        var messageText = new EditMessageReplyMarkup();
-
-        messageText.setMessageId(Integer.valueOf(message.getMessageId()));
-        messageText.setChatId(message.getChatId());
-
-        // при изменении сообщения кнопки только самого сообщения
-        if (inlineKeyboard != null && !inlineKeyboard.isEmpty()) {
-            var keyboard = getInlineKeyboard(inlineKeyboard);
-            messageText.setReplyMarkup(keyboard);
-        }
-        sendMessage(messageText);
-    }
-
-    /**
      * Отправить сообщение без картинки
      */
     private void sendMessage(TelegramMessageDto message) {
@@ -224,52 +196,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
             }
             execute(messageText);
         } catch (IOException | TelegramApiException e) {
-            log.error(e.getMessage());
-        }
-    }
-
-    /**
-     * Изменить текст сообщения с картинкой (+ клавиатуру)
-     */
-    private void editMediaCaption(TelegramMessageDto message) {
-        var inlineKeyboard = message.getInlineKeyboard();
-        var messageText = new EditMessageCaption();
-
-        messageText.setParseMode(MARKDOWN_MODE);
-        messageText.setMessageId(Integer.valueOf(message.getMessageId()));
-        messageText.setChatId(message.getChatId());
-        messageText.setCaption(message.getText());
-
-        // при изменении сообщения кнопки только самого сообщения
-        if (inlineKeyboard != null && !inlineKeyboard.isEmpty()) {
-            var keyboard = getInlineKeyboard(inlineKeyboard);
-            messageText.setReplyMarkup(keyboard);
-        }
-        sendMessage(messageText);
-    }
-
-    /**
-     * Изменить текст и картинку сообщения с картинкой (+ клавиатуру)
-     */
-    private void editMedia(TelegramMessageDto message) {
-        var inlineKeyboard = message.getInlineKeyboard();
-        var messageText = new EditMessageMedia();
-        var photo = new InputMediaPhoto(message.getAttachment());
-        photo.setCaption(message.getText());
-        photo.setParseMode(MARKDOWN_MODE);
-
-        messageText.setMessageId(Integer.valueOf(message.getMessageId()));
-        messageText.setChatId(message.getChatId());
-        messageText.setMedia(photo);
-
-        // при изменении сообщения кнопки только самого сообщения
-        if (inlineKeyboard != null && !inlineKeyboard.isEmpty()) {
-            var keyboard = getInlineKeyboard(inlineKeyboard);
-            messageText.setReplyMarkup(keyboard);
-        }
-        try {
-            execute(messageText);
-        } catch (TelegramApiException e) {
             log.error(e.getMessage());
         }
     }

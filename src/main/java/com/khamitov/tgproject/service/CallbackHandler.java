@@ -27,7 +27,6 @@ public class CallbackHandler {
     private final ImageService imageService;
 
     @PostConstruct
-    @SuppressWarnings("unused")
     public void init() {
         consumers.put(InlineButtonCallbacks.SHOW_IMAGES.getCallback(), this::nextImage);
         consumers.put(InlineButtonCallbacks.NEXT_IMAGE.getCallback(), this::nextImage);

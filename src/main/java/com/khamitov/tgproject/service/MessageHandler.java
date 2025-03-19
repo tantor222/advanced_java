@@ -24,7 +24,6 @@ public class MessageHandler {
     private final Map<String, Function<TelegramMessageDto, TelegramMessageDto>> consumers = new HashMap<>();
 
     @PostConstruct
-    @SuppressWarnings("unused")
     public void init() {
         consumers.put("/start", this::start);
     }

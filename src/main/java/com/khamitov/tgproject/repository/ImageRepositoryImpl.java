@@ -9,7 +9,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
-@SuppressWarnings("unused")
 public class ImageRepositoryImpl implements ImageRepository {
 
     private final Map<Long, List<UUID>> cache = new ConcurrentHashMap<>();

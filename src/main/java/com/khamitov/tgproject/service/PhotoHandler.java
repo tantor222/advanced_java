@@ -21,8 +21,8 @@ public class PhotoHandler {
 
     private final ImageRepository imageRepository;
 
-    public TelegramMessageDto handleCommands(Update update, File file) {
-        Long chatId = update.getMessage().getFrom().getId();
+    public TelegramMessageDto handleCommands(TelegramMessageDto message, File file) {
+        Long chatId = message.getChatId();
         try {
             imageRepository.saveImage(chatId, file.getAbsolutePath());
             TelegramMessageKeyboardDto button = TelegramMessageKeyboardDto.builder()

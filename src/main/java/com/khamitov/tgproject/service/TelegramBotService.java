@@ -44,7 +44,6 @@ import java.util.function.Consumer;
 public class TelegramBotService extends TelegramLongPollingBot {
 
     private final String botUsername;
-    private final String botToken;
     private static final String MARKDOWN_MODE = "MarkdownV2";
     private final Map<ActionsEnum, Consumer<TelegramMessageDto>> consumers = new EnumMap<>(ActionsEnum.class);
 
@@ -61,7 +60,6 @@ public class TelegramBotService extends TelegramLongPollingBot {
                               TelegramMessageMapping telegramMessageMapping) {
         super(botToken);
         this.botUsername = botUsername;
-        this.botToken = botToken;
         this.messageHandler = messageHandler;
         this.callbackHandler = callbackHandler;
         this.photoHandler = photoHandler;
@@ -109,7 +107,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 getFile.setFileId(photo.get().getFileId());
                 var file = execute(getFile);
                 File photoFile = downloadFile(file);
-                TelegramMessageDto response = photoHandler.handleCommands(update, photoFile);
+                TelegramMessageDto message = telegramMessageMapping.fromMessage(update);
+                TelegramMessageDto response = photoHandler.handleCommands(message, photoFile);
                 consumers.get(response.getAction()).accept(response);
             } catch (TelegramApiException err) {
                 log.error("", err);

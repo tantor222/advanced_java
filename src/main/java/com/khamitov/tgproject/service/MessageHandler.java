@@ -32,11 +32,19 @@ public class MessageHandler {
         try {
             return Optional.ofNullable(consumers.get(message.getText()))
                     .map(fn -> fn.apply(message))
-                    .orElse(null);
+                    .orElse(getUnknownCommandResponse(message));
         } catch (RuntimeException exception) {
             log.error(exception.getMessage());
             return null;
         }
+    }
+
+    private TelegramMessageDto getUnknownCommandResponse(TelegramMessageDto telegramMessageDto) {
+        return TelegramMessageDto.builder()
+                .chatId(telegramMessageDto.getChatId())
+                .text(TextConstants.UNKNOWN_COMMAND)
+                .action(ActionsEnum.SEND_MESSAGE)
+                .build();
     }
 
     private TelegramMessageDto start(TelegramMessageDto telegramMessageDto) {

@@ -48,7 +48,7 @@ public class ServerConsumer {
         strategies.put(ActionsEnum.EDIT_MESSAGE_REPLY_MARKUP, this::editMessageReplyMarkup);
     }
 
-    @RabbitListener(queues = "${spring.rabbitmq.engine.in-queue}")
+    @RabbitListener(queues = "${spring.rabbitmq.server.out-queue}")
     public void receive(TelegramMessageDto message) {
         log.debug("[TELEGRAM:RabbitMQ] Consume message: {}", message);
         if (message.getAction() == null) {

@@ -1,10 +1,10 @@
 package com.khamitov.server.config;
 
-import lombok.Getter;
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-@Getter
+@Data
 @Component
 @ConfigurationProperties(prefix = "spring.rabbitmq.server")
 public class QueueProperties {

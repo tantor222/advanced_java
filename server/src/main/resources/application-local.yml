@@ -1,0 +1,13 @@
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: rmuser
+    password: rmpassword
+    server:
+      exchange: project_server
+      in-queue: telegram_to_server
+      out-queue: server_to_telegram
+logging:
+  level:
+    root: error

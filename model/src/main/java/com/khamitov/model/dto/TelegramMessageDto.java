@@ -2,12 +2,17 @@ package com.khamitov.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Getter
+@ToString
 @AllArgsConstructor
-public class TelegramMessageDto {
+@NoArgsConstructor
+public class TelegramMessageDto implements Serializable {
 
     private ActionsEnum action;
     private Long chatId;

@@ -1,7 +1,0 @@
-bot:
-  name: ${BOT_NAME}
-  token: ${BOT_TOKEN}
-
-logging:
-  level:
-    root: error

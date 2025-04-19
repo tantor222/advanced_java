@@ -16,13 +16,12 @@ public class MessageHandlerFactory {
     private final List<MessageHandler> messageHandlers;
     private final TelegramProducer telegramProducer;
 
-    public void execute(TelegramMessageDto messageDto) {
+    public MessageHandler getHandler(TelegramMessageDto messageDto) {
         for (MessageHandler messageHandler : messageHandlers) {
             if (messageHandler.getMessage().equals(messageDto.getText())) {
-                messageHandler.execute(messageDto);
-                return;
+                return messageHandler;
             }
         }
-        telegramProducer.sendErrorMessage(messageDto, "Unknown command");
+        return null;
     }
 }

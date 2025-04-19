@@ -17,15 +17,25 @@ public class CallbackHandlerFactory {
     private final List<CallbackHandler> callbackHandlers;
     private final TelegramProducer telegramProducer;
 
-    public void execute(TelegramMessageDto messageDto) {
+    public CallbackHandler getHandler(TelegramMessageDto messageDto) {
         String prefix = Optional.ofNullable(CallbackPrefix.getPrefix(messageDto.getCallback()))
                 .orElseThrow();
         for (CallbackHandler callbackHandler : callbackHandlers) {
             if (callbackHandler.getPrefix().equals(prefix)) {
-                callbackHandler.execute(messageDto);
-                return;
+                return callbackHandler;
             }
         }
-        telegramProducer.sendErrorMessage(messageDto, "Unknown command");
+        return null;
+    }
+
+    public CallbackHandler getHandlerFromContext(TelegramMessageDto messageDto) {
+        String prefix = Optional.ofNullable(CallbackPrefix.getPrefix(messageDto.getContext()))
+                .orElseThrow();
+        for (CallbackHandler callbackHandler : callbackHandlers) {
+            if (callbackHandler.getPrefix().equals(prefix)) {
+                return callbackHandler;
+            }
+        }
+        return null;
     }
 }

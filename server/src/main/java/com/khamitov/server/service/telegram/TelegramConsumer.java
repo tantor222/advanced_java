@@ -1,7 +1,9 @@
 package com.khamitov.server.service.telegram;
 
 import com.khamitov.model.dto.TelegramMessageDto;
+import com.khamitov.server.service.callback.CallbackHandler;
 import com.khamitov.server.service.callback.CallbackHandlerFactory;
+import com.khamitov.server.service.message.MessageHandler;
 import com.khamitov.server.service.message.MessageHandlerFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,13 +23,26 @@ public class TelegramConsumer {
     public void consume(TelegramMessageDto message) {
         log.info("Received [queue: server], [message: {}]", message);
         try {
-            if (message.getText() != null) {
-                messageHandlerFactory.execute(message);
-            } else if (message.getCallback() != null) {
-                callbackHandlerFactory.execute(message);
-            } else {
-                telegramProducer.sendErrorMessage(message, "Invalid action to receive");
+            if (message.getCallback() != null) {
+                CallbackHandler callbackHandler = callbackHandlerFactory.getHandler(message);
+                if (callbackHandler != null) {
+                    callbackHandler.execute(message);
+                    return;
+                }
+            } else if (message.getContext() != null) {
+                CallbackHandler callbackHandler = callbackHandlerFactory.getHandlerFromContext(message);
+                if (callbackHandler != null) {
+                    callbackHandler.execute(message);
+                    return;
+                }
+            } else if (message.getText() != null) {
+                MessageHandler messageHandler = messageHandlerFactory.getHandler(message);
+                if (messageHandler != null) {
+                    messageHandler.execute(message);
+                    return;
+                }
             }
+                telegramProducer.sendErrorMessage(message, "Invalid action to receive");
         } catch (Exception e) {
             log.error("Receive message with error: ", e);
         }

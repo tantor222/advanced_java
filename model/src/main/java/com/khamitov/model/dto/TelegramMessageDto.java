@@ -20,6 +20,7 @@ public class TelegramMessageDto implements Serializable {
     private String text;
     private String callback;
     private String attachment;
+    private String context;
     private List<List<TelegramMessageKeyboardDto>> replyKeyboard;
     private List<List<TelegramMessageKeyboardDto>> inlineKeyboard;
 
@@ -35,6 +36,7 @@ public class TelegramMessageDto implements Serializable {
         private String text;
         private String callback;
         private String attachment;
+        private String context;
         private List<List<TelegramMessageKeyboardDto>> replyKeyboard;
         private List<List<TelegramMessageKeyboardDto>> inlineKeyboard;
 
@@ -48,6 +50,7 @@ public class TelegramMessageDto implements Serializable {
                     text,
                     callback,
                     attachment,
+                    context,
                     replyKeyboard,
                     inlineKeyboard
             );
@@ -80,6 +83,11 @@ public class TelegramMessageDto implements Serializable {
 
         public TelegramMessageDtoBuilder attachment(String attachment) {
             this.attachment = attachment;
+            return this;
+        }
+
+        public TelegramMessageDtoBuilder context(String context) {
+            this.context = context;
             return this;
         }
 

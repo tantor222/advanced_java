@@ -7,7 +7,7 @@ import java.util.List;
 public class AbstractMessageComponent {
 
     public String getMessageText() {
-        return "";
+        return "Сообщение оказалось пустым! Ищите баги!";
     }
 
     public List<List<TelegramMessageKeyboardDto>> getInlineKeyboard() {

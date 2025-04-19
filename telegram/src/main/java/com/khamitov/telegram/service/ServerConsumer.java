@@ -3,6 +3,7 @@ package com.khamitov.telegram.service;
 import com.khamitov.model.dto.ActionsEnum;
 import com.khamitov.model.dto.TelegramMessageDto;
 import com.khamitov.model.dto.TelegramMessageKeyboardDto;
+import com.khamitov.telegram.repository.TelegramContextRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,9 +37,9 @@ public class ServerConsumer {
     private final Map<ActionsEnum, Consumer<TelegramMessageDto>> strategies = new EnumMap<>(ActionsEnum.class);
     private static final String ACTION_NOT_FOUND = "MQ_CONSUME_EMPTY_ACTION: {}";
     private static final String ACTION_UNKNOWN = "MQ_CONSUME_UNKNOWN_ACTION: {}";
-    private static final String MARKDOWN_MODE = "MarkdownV2";
 
     private final TelegramBotService telegramBot;
+    private final TelegramContextRepository telegramContextRepository;
 
     @PostConstruct
     public void init() {
@@ -57,6 +58,9 @@ public class ServerConsumer {
             log.warn(ACTION_UNKNOWN, message);
         } else {
             try {
+                if (message.getContext() != null) {
+                    telegramContextRepository.setContext(message.getChatId(), message.getContext());
+                }
                 strategies.get(message.getAction()).accept(message);
             } catch (Exception e) {
                 log.error("", e);
@@ -68,7 +72,6 @@ public class ServerConsumer {
         var inlineKeyboard = message.getInlineKeyboard();
         var messageText = new EditMessageText();
 
-        messageText.setParseMode(MARKDOWN_MODE);
         messageText.setMessageId(Integer.valueOf(message.getMessageId()));
         messageText.setChatId(message.getChatId());
         messageText.setText(message.getText());
@@ -109,7 +112,6 @@ public class ServerConsumer {
         var replyKeyboard = message.getReplyKeyboard();
         var messageText = new SendMessage();
 
-        messageText.setParseMode(MARKDOWN_MODE);
         messageText.setChatId(message.getChatId());
         messageText.setText(message.getText());
 
@@ -132,7 +134,6 @@ public class ServerConsumer {
         var replyKeyboard = message.getReplyKeyboard();
         var messageText = new SendPhoto();
 
-        messageText.setParseMode(MARKDOWN_MODE);
         messageText.setPhoto(new InputFile(message.getAttachment()));
         messageText.setChatId(message.getChatId());
         messageText.setCaption(message.getText());

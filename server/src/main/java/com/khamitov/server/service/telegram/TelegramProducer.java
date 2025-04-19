@@ -1,5 +1,6 @@
 package com.khamitov.server.service.telegram;
 
+import com.khamitov.model.dto.ActionsEnum;
 import com.khamitov.model.dto.TelegramMessageDto;
 import com.khamitov.server.config.QueueProperties;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class TelegramProducer {
 
     public void sendErrorMessage(TelegramMessageDto incomingMessage, String text) {
         var response = TelegramMessageDto.builder()
+                .action(ActionsEnum.SEND_MESSAGE)
                 .chatId(incomingMessage.getChatId())
                 .text(text)
                 .build();

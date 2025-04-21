@@ -42,9 +42,10 @@ public class TelegramConsumer {
                     return;
                 }
             }
-                telegramProducer.sendErrorMessage(message, "Invalid action to receive");
+            telegramProducer.sendErrorMessage(message, "Invalid action to receive");
         } catch (Exception e) {
             log.error("Receive message with error: ", e);
         }
+        messageHandlerFactory.getStartPage().execute(message);
     }
 }

@@ -15,7 +15,11 @@ public enum ECallbackPrefixes {
     SAVE_PHOTO("photo_s"),
     SAVE_NAME("name_s"),
     SAVE_CAT("cat_s"),
-    ACCEPT_CAT("cat_a");
+    ACCEPT_CAT("cat_a"),
+    SHOW_CAT("cat_ch"),
+    LIKE_CAT("cat_l"),
+    DISLIKE_CAT("cat_dl"),
+    CAT_LIST("cat_li");
 
     private final String pref;
 }

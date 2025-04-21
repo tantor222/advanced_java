@@ -14,7 +14,7 @@ import java.util.List;
 public class MessageHandlerFactory {
 
     private final List<MessageHandler> messageHandlers;
-    private final TelegramProducer telegramProducer;
+    private final StartMessageHandler startMessageHandler;
 
     public MessageHandler getHandler(TelegramMessageDto messageDto) {
         for (MessageHandler messageHandler : messageHandlers) {
@@ -23,5 +23,9 @@ public class MessageHandlerFactory {
             }
         }
         return null;
+    }
+
+    public MessageHandler getStartPage() {
+        return startMessageHandler;
     }
 }

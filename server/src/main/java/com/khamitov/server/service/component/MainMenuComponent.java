@@ -22,8 +22,10 @@ public class MainMenuComponent extends AbstractMessageComponent {
     public List<List<TelegramMessageKeyboardDto>> getInlineKeyboard() {
         return List.of(
                 List.of(
-                        CallbackPrefix.createInlineButton(ECallbackPrefixes.MOCK, "", "Мои котики"),
-                        CallbackPrefix.createInlineButton(ECallbackPrefixes.MOCK, "", "Смотреть кот"),
+                        CallbackPrefix.createInlineButton(ECallbackPrefixes.CAT_LIST, "",
+                                "Мои котики"),
+                        CallbackPrefix.createInlineButton(ECallbackPrefixes.SHOW_CAT, "",
+                                "Смотреть кот"),
                         CallbackPrefix.createInlineButton(ECallbackPrefixes.CREATE_CAT, "",
                                 "Добавить кот")
                 )

@@ -2,6 +2,7 @@ package com.khamitov.server.service.callback;
 
 import com.khamitov.model.dto.TelegramMessageKeyboardDto;
 import com.khamitov.server.constant.ECallbackPrefixes;
+import org.springframework.lang.Nullable;
 
 import java.util.Optional;
 
@@ -27,17 +28,18 @@ public class CallbackPrefix {
         return createPrefix(prefix, null);
     }
 
-    public static String getPrefix(String path) {
-        var splits = path.split(delimiter);
+    public static String getPrefix(String callback) {
+        var splits = callback.split(delimiter);
         if (splits.length < 2) {
             return null;
         }
         return splits[0];
     }
 
-    public static String getPath(String path) {
-        var splits = path.split(delimiter);
-        if (splits.length < 2) {
+    @Nullable
+    public static String getPath(String callback) {
+        var splits = callback.split(delimiter);
+        if (splits.length < 2 || defaultPath.equals(splits[1])) {
             return null;
         }
         return splits[1];

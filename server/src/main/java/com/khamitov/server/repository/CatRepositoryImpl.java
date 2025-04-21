@@ -1,10 +1,13 @@
 package com.khamitov.server.repository;
 
 import com.khamitov.server.model.entity.Cat;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
+@Repository
 public class CatRepositoryImpl implements CatRepository {
 
     private final ArrayList<Cat> cats = new ArrayList<>();
@@ -20,5 +23,10 @@ public class CatRepositoryImpl implements CatRepository {
                 .filter(c -> c.getId().equals(catId))
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Override
+    public List<Cat> getAllCats() {
+        return List.copyOf(cats);
     }
 }

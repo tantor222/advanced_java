@@ -1,0 +1,57 @@
+version: "3.9"
+services:
+  rabbitmq:
+    image: rabbitmq:3.13.0-management-alpine
+    restart: 'no'
+    networks:
+      - app-network
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=rmuser
+      - RABBITMQ_DEFAULT_PASS=rmpassword
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    depends_on:
+      - rabbitmq
+    platform: linux/amd64
+    networks:
+      - app-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - RABBIT_HOST=rabbitmq
+      - RABBIT_PORT=5672
+      - RABBIT_USER=rmuser
+      - RABBIT_PASSWORD=rmpassword
+      - RABBIT_SERVER_EXCHANGE=project_server
+      - RABBIT_SERVER_IN_QUEUE=telegram_to_server
+      - RABBIT_SERVER_OUT_QUEUE=server_to_telegram
+
+  telegram:
+    build:
+      context: ./telegram
+      dockerfile: Dockerfile
+    depends_on:
+      - rabbitmq
+      - server
+    platform: linux/amd64
+    networks:
+      - app-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - RABBIT_HOST=rabbitmq
+      - RABBIT_PORT=5672
+      - RABBIT_USER=rmuser
+      - RABBIT_PASSWORD=rmpassword
+      - BOT_NAME=tgproject
+      - BOT_TOKEN=22
+      - RABBIT_SERVER_EXCHANGE=project_server
+      - RABBIT_SERVER_IN_QUEUE=telegram_to_server
+      - RABBIT_SERVER_OUT_QUEUE=server_to_telegram
+
+networks:
+  app-network:

@@ -22,6 +22,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -134,25 +138,27 @@ public class ServerConsumer {
         var replyKeyboard = message.getReplyKeyboard();
         var messageText = new SendPhoto();
 
-        messageText.setPhoto(new InputFile(message.getAttachment()));
-        messageText.setChatId(message.getChatId());
-        messageText.setCaption(message.getText());
 
-        if (inlineKeyboard != null && !inlineKeyboard.isEmpty()) {
-            var keyboard = getInlineKeyboard(inlineKeyboard);
-            messageText.setReplyMarkup(keyboard);
-        } else if (replyKeyboard != null) {
-            if (replyKeyboard.isEmpty()) {
-                messageText.setReplyMarkup(new ReplyKeyboardRemove(true));
-            } else {
-                var keyboard = getReplyKeyboard(replyKeyboard);
-                messageText.setReplyMarkup(keyboard);
-            }
-        }
 
         try {
+            Path path = Paths.get(message.getAttachment());
+            messageText.setPhoto(new InputFile(Files.newInputStream(path), message.getAttachment()));
+            messageText.setChatId(message.getChatId());
+            messageText.setCaption(message.getText());
+
+            if (inlineKeyboard != null && !inlineKeyboard.isEmpty()) {
+                var keyboard = getInlineKeyboard(inlineKeyboard);
+                messageText.setReplyMarkup(keyboard);
+            } else if (replyKeyboard != null) {
+                if (replyKeyboard.isEmpty()) {
+                    messageText.setReplyMarkup(new ReplyKeyboardRemove(true));
+                } else {
+                    var keyboard = getReplyKeyboard(replyKeyboard);
+                    messageText.setReplyMarkup(keyboard);
+                }
+            }
             telegramBot.execute(messageText);
-        } catch (TelegramApiException e) {
+        } catch (TelegramApiException | IOException e) {
             log.error(e.getMessage());
         }
     }

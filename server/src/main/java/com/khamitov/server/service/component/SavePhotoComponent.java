@@ -6,6 +6,7 @@ import com.khamitov.server.service.callback.CallbackPrefix;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class SavePhotoComponent extends AbstractMessageComponent {
@@ -14,7 +15,7 @@ public class SavePhotoComponent extends AbstractMessageComponent {
         return "Как зовут твоего котика?";
     }
 
-    public List<List<TelegramMessageKeyboardDto>> getInlineKeyboard(Long catId) {
+    public List<List<TelegramMessageKeyboardDto>> getInlineKeyboard(UUID catId) {
         return List.of(
                 List.of(
                         CallbackPrefix.createInlineButton(ECallbackPrefixes.TOUCH_PHOTO, String.valueOf(catId),

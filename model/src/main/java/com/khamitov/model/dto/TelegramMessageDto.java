@@ -16,6 +16,7 @@ public class TelegramMessageDto implements Serializable {
 
     private ActionsEnum action;
     private Long chatId;
+    private String nickname;
     private String messageId;
     private String text;
     private String callback;
@@ -32,6 +33,7 @@ public class TelegramMessageDto implements Serializable {
 
         private ActionsEnum action;
         private Long chatId;
+        private String nickname;
         private String messageId;
         private String text;
         private String callback;
@@ -46,6 +48,7 @@ public class TelegramMessageDto implements Serializable {
             return new TelegramMessageDto(
                     action,
                     chatId,
+                    nickname,
                     messageId,
                     text,
                     callback,
@@ -63,6 +66,11 @@ public class TelegramMessageDto implements Serializable {
 
         public TelegramMessageDtoBuilder chatId(Long chatId) {
             this.chatId = chatId;
+            return this;
+        }
+
+        public TelegramMessageDtoBuilder nickname(String nickname) {
+            this.nickname = nickname;
             return this;
         }
 

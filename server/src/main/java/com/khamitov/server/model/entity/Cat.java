@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.UUID;
 
 @Builder
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Cat {
@@ -19,4 +21,5 @@ public class Cat {
     private String authorName;
     private Integer likes;
     private Integer dislikes;
+    private String filePath;
 }

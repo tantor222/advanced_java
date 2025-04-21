@@ -6,6 +6,7 @@ import com.khamitov.server.service.callback.CallbackPrefix;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class SaveNameComponent extends AbstractMessageComponent {
@@ -16,7 +17,7 @@ public class SaveNameComponent extends AbstractMessageComponent {
                 "оставить его?";
     }
 
-    public List<List<TelegramMessageKeyboardDto>> getInlineKeyboard(Long catId) {
+    public List<List<TelegramMessageKeyboardDto>> getInlineKeyboard(UUID catId) {
         return List.of(
                 List.of(
                         CallbackPrefix.createInlineButton(ECallbackPrefixes.SAVE_CAT, String.valueOf(catId),

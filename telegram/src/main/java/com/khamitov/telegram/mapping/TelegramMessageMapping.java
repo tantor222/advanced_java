@@ -13,12 +13,14 @@ public interface TelegramMessageMapping {
 
     @Mapping(target = "chatId", source = "update.message.from.id")
     @Mapping(target = "text", source = "update.message.text")
+    @Mapping(target = "nickname", source = "update.message.chat.userName")
     @Mapping(target = "context", source = "context")
     TelegramMessageDto fromMessage(Update update, String context);
 
     @Mapping(target = "chatId", source = "update.callbackQuery.from.id")
     @Mapping(target = "messageId", source = "update.callbackQuery.message.messageId")
     @Mapping(target = "callback", source = "update.callbackQuery.data")
+    @Mapping(target = "nickname", source = "update.callbackQuery.from.userName")
     @Mapping(target = "context", source = "context")
     TelegramMessageDto fromCallback(Update update, String context);
 

@@ -3,6 +3,7 @@ package com.khamitov.server.service.callback;
 import com.khamitov.model.dto.TelegramMessageDto;
 import com.khamitov.server.constant.ECallbackPrefixes;
 import com.khamitov.server.model.entity.Cat;
+import com.khamitov.server.repository.CatRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,22 +14,21 @@ import java.util.UUID;
 public class CatDislikeCallback implements CallbackHandler {
 
     private final ShowCatCallback showCatCallback;
+    private final CatRepository catRepository;
 
     @Override
     public String getPrefix() {
-        return ECallbackPrefixes.LIKE_CAT.getPref();
+        return ECallbackPrefixes.DISLIKE_CAT.getPref();
     }
 
     @Override
     public void execute(TelegramMessageDto messageDto) {
-        Cat cat = Cat.builder()
-                .id(UUID.randomUUID())
-                .name("LUCE")
-                .likes(22)
-                .dislikes(4)
-                .authorName("Borg")
-                .authorChatId(1234L)
-                .build();
-        showCatCallback.executeNext(messageDto, cat);
+        String catId = CallbackPrefix.getPath(messageDto.getCallback());
+        if (catId == null) {
+            throw new RuntimeException("Cat id is not send");
+        }
+        Cat cat = catRepository.getCat(UUID.fromString(catId));
+        cat.setDislikes(cat.getDislikes() + 1);
+        showCatCallback.executeNext(messageDto, cat.getId());
     }
 }

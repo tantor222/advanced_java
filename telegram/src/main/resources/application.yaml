@@ -1,0 +1,17 @@
+bot:
+  name: ${BOT_NAME}
+  token: ${BOT_TOKEN}
+spring:
+  rabbitmq:
+    host: ${RABBIT_HOST}
+    port: ${RABBIT_PORT}
+    username: ${RABBIT_USER}
+    password: ${RABBIT_PASSWORD}
+    server:
+      exchange: ${RABBIT_SERVER_EXCHANGE}
+      in-queue: ${RABBIT_SERVER_IN_QUEUE}
+      out-queue: ${RABBIT_SERVER_OUT_QUEUE}
+
+logging:
+  level:
+    root: error

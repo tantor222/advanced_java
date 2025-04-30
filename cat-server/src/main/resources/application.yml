@@ -1,0 +1,13 @@
+spring:
+  rabbitmq:
+    host: ${RABBIT_HOST}
+    port: ${RABBIT_PORT}
+    username: ${RABBIT_USER}
+    password: ${RABBIT_PASSWORD}
+    cat-server:
+      exchange: ${RABBIT_CAT_SERVER_EXCHANGE}
+      in-queue: ${RABBIT_CAT_SERVER_IN_QUEUE}
+      out-queue: ${RABBIT_CAT_SERVER_OUT_QUEUE}
+logging:
+  level:
+    root: error

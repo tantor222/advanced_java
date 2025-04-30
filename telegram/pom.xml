@@ -5,28 +5,33 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.2</version>
+		<version>3.4.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.khamitov</groupId>
-	<artifactId>tgproject</artifactId>
+	<artifactId>telegram</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>pom</packaging>
-	<name>tgproject</name>
+	<name>telegram</name>
 	<description>Demo project for Spring Boot</description>
-	<modules>
-		<module>telegram</module>
-		<module>server</module>
-		<module>model</module>
-		<module>cat-server</module>
-	</modules>
 	<properties>
 		<java.version>21</java.version>
+		<jackson.version>2.16.2</jackson.version>
+		<mapstruct.version>1.5.5.Final</mapstruct.version>
+		<lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
 	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-amqp</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -36,28 +41,32 @@
 		<dependency>
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>
-			<version>1.5.5.Final</version>
+			<version>${mapstruct.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>${jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.telegram</groupId>
 			<artifactId>telegrambots-spring-boot-starter</artifactId>
 			<version>6.9.7.1</version>
 		</dependency>
+		<dependency>
+			<groupId>com.khamitov</groupId>
+			<artifactId>model</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -72,12 +81,12 @@
 						<path>
 							<groupId>org.mapstruct</groupId>
 							<artifactId>mapstruct-processor</artifactId>
-							<version>1.5.5.Final</version>
+							<version>${mapstruct.version}</version>
 						</path>
 						<dependency>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok-mapstruct-binding</artifactId>
-							<version>0.2.0</version>
+							<version>${lombok-mapstruct-binding.version}</version>
 						</dependency>
 					</annotationProcessorPaths>
 					<compilerArgs>

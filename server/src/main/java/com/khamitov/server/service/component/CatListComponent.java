@@ -1,8 +1,8 @@
 package com.khamitov.server.service.component;
 
+import com.khamitov.model.dto.CatDto;
 import com.khamitov.model.dto.TelegramMessageKeyboardDto;
 import com.khamitov.server.constant.ECallbackPrefixes;
-import com.khamitov.server.model.entity.Cat;
 import com.khamitov.server.service.callback.CallbackPrefix;
 import org.springframework.stereotype.Component;
 
@@ -22,17 +22,17 @@ public class CatListComponent extends AbstractMessageComponent {
                 воспользуйтесь кнопкой""";
     }
 
-    public List<List<TelegramMessageKeyboardDto>> getInlineKeyboard(Integer page, List<Cat> cats) {
-        List<List<Cat>> subSets = new ArrayList<>();
+    public List<List<TelegramMessageKeyboardDto>> getInlineKeyboard(Integer page, List<CatDto> cats) {
+        List<List<CatDto>> subSets = new ArrayList<>();
         int size = cats.size();
         for (int i = 0; i < size; i += 9) {
             int end = Math.min(i + 9, size);
-            List<Cat> sublist = new ArrayList<>(cats.subList(i, end));
+            List<CatDto> sublist = new ArrayList<>(cats.subList(i, end));
             subSets.add(sublist);
         }
         Integer nextPage = page == subSets.size() ? 0 : page + 1;
         Integer prevPage = page > 0 ? page - 1 : 0;
-        List<Cat> buttons = subSets.isEmpty() ? Collections.emptyList() : subSets.get(page);
+        List<CatDto> buttons = subSets.isEmpty() ? Collections.emptyList() : subSets.get(page);
         List<List<TelegramMessageKeyboardDto>> keyboard = new ArrayList<>();
         if (!buttons.isEmpty()) {
             var keyboardRowSize = 2;
@@ -63,7 +63,7 @@ public class CatListComponent extends AbstractMessageComponent {
         return keyboard;
     }
 
-    private TelegramMessageKeyboardDto getCatButton(Cat cat, Integer page) {
+    private TelegramMessageKeyboardDto getCatButton(CatDto cat, Integer page) {
         return CallbackPrefix.createInlineButton(ECallbackPrefixes.CAT_LIST,
                 String.valueOf(page), cat.getName());
     }

@@ -1,20 +1,23 @@
 package com.khamitov.server.service.callback;
 
+import com.khamitov.model.constant.CatAction;
+import com.khamitov.model.dto.CatDto;
+import com.khamitov.model.dto.CatServerDto;
 import com.khamitov.model.dto.TelegramMessageDto;
 import com.khamitov.server.constant.ECallbackPrefixes;
-import com.khamitov.server.model.entity.Cat;
-import com.khamitov.server.repository.CatRepository;
+import com.khamitov.server.service.catServer.CatServerProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class CatDislikeCallback implements CallbackHandler {
 
-    private final ShowCatCallback showCatCallback;
-    private final CatRepository catRepository;
+    private final CatServerProducer catServerProducer;
 
     @Override
     public String getPrefix() {
@@ -24,11 +27,18 @@ public class CatDislikeCallback implements CallbackHandler {
     @Override
     public void execute(TelegramMessageDto messageDto) {
         String catId = CallbackPrefix.getPath(messageDto.getCallback());
-        if (catId == null) {
-            throw new RuntimeException("Cat id is not send");
-        }
-        Cat cat = catRepository.getCat(UUID.fromString(catId));
-        cat.setDislikes(cat.getDislikes() + 1);
-        showCatCallback.executeNext(messageDto, cat.getId());
+        CatDto catDto = CatDto.builder()
+                .id(Optional.ofNullable(catId)
+                        .map(UUID::fromString)
+                        .orElseThrow(() -> new RuntimeException("Cat id is not send")))
+                .build();
+
+        CatServerDto catServerDto = CatServerDto.builder()
+                .action(CatAction.GET_CAT_DISLIKE)
+                .contextId(messageDto.getChatId())
+                .cats(List.of(catDto))
+                .build();
+
+        catServerProducer.sendMessage(catServerDto);
     }
 }

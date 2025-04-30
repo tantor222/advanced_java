@@ -30,6 +30,31 @@ services:
       - RABBIT_SERVER_EXCHANGE=project_server
       - RABBIT_SERVER_IN_QUEUE=telegram_to_server
       - RABBIT_SERVER_OUT_QUEUE=server_to_telegram
+      - RABBIT_CAT_SERVER_EXCHANGE=project_server
+      - RABBIT_CAT_SERVER_IN_QUEUE=server_to_cat-server
+      - RABBIT_CAT_SERVER_OUT_QUEUE=cat-server_to_server
+
+  cat-server:
+    build:
+      context: ./cat-server
+      dockerfile: Dockerfile
+    depends_on:
+      - rabbitmq
+    platform: linux/amd64
+    networks:
+      - app-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - RABBIT_HOST=rabbitmq
+      - RABBIT_PORT=5672
+      - RABBIT_USER=rmuser
+      - RABBIT_PASSWORD=rmpassword
+      - RABBIT_SERVER_EXCHANGE=project_server
+      - RABBIT_SERVER_IN_QUEUE=telegram_to_server
+      - RABBIT_SERVER_OUT_QUEUE=server_to_telegram
+      - RABBIT_CAT_SERVER_EXCHANGE=project_server
+      - RABBIT_CAT_SERVER_IN_QUEUE=server_to_cat-server
+      - RABBIT_CAT_SERVER_OUT_QUEUE=cat-server_to_server
 
   telegram:
     build:

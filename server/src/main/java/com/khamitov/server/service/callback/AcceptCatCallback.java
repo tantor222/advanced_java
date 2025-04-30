@@ -1,20 +1,22 @@
 package com.khamitov.server.service.callback;
 
-import com.khamitov.model.dto.ActionsEnum;
+import com.khamitov.model.constant.CatAction;
+import com.khamitov.model.dto.CatDto;
+import com.khamitov.model.dto.CatServerDto;
 import com.khamitov.model.dto.TelegramMessageDto;
 import com.khamitov.server.constant.ECallbackPrefixes;
-import com.khamitov.server.service.component.AcceptCatComponent;
-import com.khamitov.server.service.telegram.TelegramProducer;
+import com.khamitov.server.service.catServer.CatServerProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class AcceptCatCallback implements CallbackHandler {
 
-    private final AcceptCatComponent acceptCatComponent;
-    private final TelegramProducer telegramProducer;
-    private final MainMenuCallback mainMenuCallback;
+    private final CatServerProducer catServerProducer;
 
     @Override
     public String getPrefix() {
@@ -23,13 +25,21 @@ public class AcceptCatCallback implements CallbackHandler {
 
     @Override
     public void execute(TelegramMessageDto messageDto) {
-        TelegramMessageDto response = TelegramMessageDto.builder()
-                .action(ActionsEnum.SEND_MESSAGE)
-                .chatId(messageDto.getChatId())
-                .text(acceptCatComponent.getMessageText())
+        String catId = CallbackPrefix.getPath(messageDto.getCallback());
+        if (catId == null) {
+            throw new RuntimeException("Cat id is not send");
+        }
+        CatDto catDto = CatDto.builder()
+                .id(UUID.fromString(catId))
+                .accepted(true)
                 .build();
 
-        telegramProducer.sendMessage(response);
-        mainMenuCallback.execute(messageDto);
+        CatServerDto catServerDto = CatServerDto.builder()
+                .action(CatAction.GET_CAT_ACCEPT)
+                .contextId(messageDto.getChatId())
+                .cats(List.of(catDto))
+                .build();
+
+        catServerProducer.sendMessage(catServerDto);
     }
 }

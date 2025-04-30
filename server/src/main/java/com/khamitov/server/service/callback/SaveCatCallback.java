@@ -1,24 +1,22 @@
 package com.khamitov.server.service.callback;
 
-import com.khamitov.model.dto.ActionsEnum;
+import com.khamitov.model.constant.CatAction;
+import com.khamitov.model.dto.CatDto;
+import com.khamitov.model.dto.CatServerDto;
 import com.khamitov.model.dto.TelegramMessageDto;
 import com.khamitov.server.constant.ECallbackPrefixes;
-import com.khamitov.server.model.entity.Cat;
-import com.khamitov.server.repository.CatRepository;
-import com.khamitov.server.service.component.SaveCatComponent;
-import com.khamitov.server.service.telegram.TelegramProducer;
+import com.khamitov.server.service.catServer.CatServerProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class SaveCatCallback implements CallbackHandler {
 
-    private final TelegramProducer telegramProducer;
-    private final SaveCatComponent saveCatComponent;
-    private final CatRepository catRepository;
+    private final CatServerProducer catServerProducer;
 
     @Override
     public String getPrefix() {
@@ -31,15 +29,16 @@ public class SaveCatCallback implements CallbackHandler {
         if (catId == null) {
             throw new RuntimeException("Cat id is not send");
         }
-        Cat cat = catRepository.getCat(UUID.fromString(catId));
-        TelegramMessageDto response = TelegramMessageDto.builder()
-                .action(ActionsEnum.SEND_PHOTO)
-                .chatId(messageDto.getChatId())
-                .text(saveCatComponent.getMessageText(cat.getName(), cat.getAuthorName()))
-                .inlineKeyboard(saveCatComponent.getInlineKeyboard(1L))
-                .attachment(cat.getFilePath())
+        CatDto catDto = CatDto.builder()
+                .id(UUID.fromString(catId))
                 .build();
 
-        telegramProducer.sendMessage(response);
+        CatServerDto catServerDto = CatServerDto.builder()
+                .action(CatAction.GET_CAT_SAVE)
+                .contextId(messageDto.getChatId())
+                .cats(List.of(catDto))
+                .build();
+
+        catServerProducer.sendMessage(catServerDto);
     }
 }

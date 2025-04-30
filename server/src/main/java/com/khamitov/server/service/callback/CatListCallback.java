@@ -1,16 +1,13 @@
 package com.khamitov.server.service.callback;
 
-import com.khamitov.model.dto.ActionsEnum;
+import com.khamitov.model.constant.CatAction;
+import com.khamitov.model.dto.CatServerDto;
 import com.khamitov.model.dto.TelegramMessageDto;
 import com.khamitov.server.constant.ECallbackPrefixes;
-import com.khamitov.server.model.entity.Cat;
-import com.khamitov.server.repository.CatRepository;
-import com.khamitov.server.service.component.CatListComponent;
-import com.khamitov.server.service.telegram.TelegramProducer;
+import com.khamitov.server.service.catServer.CatServerProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -18,9 +15,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CatListCallback implements CallbackHandler {
 
-    private final TelegramProducer telegramProducer;
-    private final CatListComponent catListComponent;
-    private final CatRepository catRepository;
+    private final CatServerProducer catServerProducer;
 
     @Override
     public String getPrefix() {
@@ -35,15 +30,12 @@ public class CatListCallback implements CallbackHandler {
                 .map(Integer::valueOf)
                 .orElse(0);
 
-        List<Cat> cats = catRepository.getAllCats();
-
-        TelegramMessageDto response = TelegramMessageDto.builder()
-                .action(ActionsEnum.SEND_MESSAGE)
-                .chatId(messageDto.getChatId())
-                .text(catListComponent.getMessageText())
-                .inlineKeyboard(catListComponent.getInlineKeyboard(page, cats))
+        CatServerDto catServerDto = CatServerDto.builder()
+                .action(CatAction.GET_ALL_CAT_LIST)
+                .contextId(messageDto.getChatId())
+                .page(page)
                 .build();
 
-        telegramProducer.sendMessage(response);
+        catServerProducer.sendMessage(catServerDto);
     }
 }

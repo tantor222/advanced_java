@@ -1,6 +1,6 @@
-package com.khamitov.server.repository;
+package com.khamitov.cat_server.repository;
 
-import com.khamitov.server.model.entity.Cat;
+import com.khamitov.cat_server.entity.Cat;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -14,6 +14,9 @@ public class CatRepositoryImpl implements CatRepository {
 
     @Override
     public void saveCat(Cat cat) {
+        if (cat.getId() == null) {
+            cat.setId(UUID.randomUUID());
+        }
         cats.add(cat);
     }
 

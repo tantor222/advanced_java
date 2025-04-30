@@ -1,6 +1,6 @@
-package com.khamitov.server.repository;
+package com.khamitov.cat_server.repository;
 
-import com.khamitov.server.model.entity.Cat;
+import com.khamitov.cat_server.entity.Cat;
 
 import java.util.List;
 import java.util.UUID;

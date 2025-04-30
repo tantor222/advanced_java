@@ -18,6 +18,7 @@
 		<module>telegram</module>
 		<module>server</module>
 		<module>model</module>
+		<module>cat-server</module>
 	</modules>
 	<properties>
 		<java.version>21</java.version>

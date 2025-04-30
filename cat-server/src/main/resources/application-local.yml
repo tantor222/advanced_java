@@ -1,0 +1,13 @@
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: rmuser
+    password: rmpassword
+    cat-server:
+      exchange: project_server
+      in-queue: server_to_cat-server
+      out-queue: cat-server_to_server
+logging:
+  level:
+    root: error

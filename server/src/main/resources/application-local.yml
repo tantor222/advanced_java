@@ -8,6 +8,10 @@ spring:
       exchange: project_server
       in-queue: telegram_to_server
       out-queue: server_to_telegram
+    cat-server:
+      exchange: project_server
+      in-queue: server_to_cat-server
+      out-queue: cat-server_to_server
 logging:
   level:
     root: error

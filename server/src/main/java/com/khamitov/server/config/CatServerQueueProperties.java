@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 
 @Data
 @Component
-@ConfigurationProperties(prefix = "spring.rabbitmq.server")
-public class QueueProperties {
+@ConfigurationProperties(prefix = "spring.rabbitmq.cat-server")
+public class CatServerQueueProperties {
 
     private String exchange;
     private String inQueue;

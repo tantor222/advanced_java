@@ -6,6 +6,7 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitConfig {
 
     @Bean
-    public TopicExchange serverExchange(QueueProperties queueProperties) {
+    public TopicExchange serverExchange(ServerQueueProperties queueProperties) {
         return new TopicExchange(queueProperties.getExchange());
     }
 
@@ -23,12 +24,12 @@ public class RabbitConfig {
     }
 
     @Bean
-    public Queue serverInQueue(QueueProperties queueProperties) {
+    public Queue serverInQueue(ServerQueueProperties queueProperties) {
         return new Queue(queueProperties.getInQueue());
     }
 
     @Bean
-    public Queue serverOutQueue(QueueProperties queueProperties) {
+    public Queue serverOutQueue(ServerQueueProperties queueProperties) {
         return new Queue(queueProperties.getOutQueue());
     }
 
@@ -36,7 +37,7 @@ public class RabbitConfig {
     public Binding serverInBinding(
             Queue serverInQueue,
             TopicExchange serverExchange,
-            QueueProperties queueProperties
+            ServerQueueProperties queueProperties
     ) {
         return BindingBuilder.bind(serverInQueue).to(serverExchange).with(queueProperties.getInQueue());
     }
@@ -45,7 +46,35 @@ public class RabbitConfig {
     public Binding serverOutBinding(
             Queue serverOutQueue,
             TopicExchange serverExchange,
-            QueueProperties queueProperties
+            ServerQueueProperties queueProperties
+    ) {
+        return BindingBuilder.bind(serverOutQueue).to(serverExchange).with(queueProperties.getOutQueue());
+    }
+
+    @Bean
+    public Queue catServerInQueue(CatServerQueueProperties queueProperties) {
+        return new Queue(queueProperties.getInQueue());
+    }
+
+    @Bean
+    public Queue catServerOutQueue(CatServerQueueProperties queueProperties) {
+        return new Queue(queueProperties.getOutQueue());
+    }
+
+    @Bean
+    public Binding catServerInBinding(
+            @Qualifier("catServerInQueue") Queue serverInQueue,
+            TopicExchange serverExchange,
+            CatServerQueueProperties queueProperties
+    ) {
+        return BindingBuilder.bind(serverInQueue).to(serverExchange).with(queueProperties.getInQueue());
+    }
+
+    @Bean
+    public Binding catServerOutBinding(
+            @Qualifier("catServerOutQueue") Queue serverOutQueue,
+            TopicExchange serverExchange,
+            CatServerQueueProperties queueProperties
     ) {
         return BindingBuilder.bind(serverOutQueue).to(serverExchange).with(queueProperties.getOutQueue());
     }

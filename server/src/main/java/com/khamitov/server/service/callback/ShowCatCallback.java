@@ -1,15 +1,15 @@
 package com.khamitov.server.service.callback;
 
-import com.khamitov.model.dto.ActionsEnum;
+import com.khamitov.model.constant.CatAction;
+import com.khamitov.model.dto.CatDto;
+import com.khamitov.model.dto.CatServerDto;
 import com.khamitov.model.dto.TelegramMessageDto;
 import com.khamitov.server.constant.ECallbackPrefixes;
-import com.khamitov.server.model.entity.Cat;
-import com.khamitov.server.repository.CatRepository;
-import com.khamitov.server.service.component.ShowCatComponent;
-import com.khamitov.server.service.telegram.TelegramProducer;
+import com.khamitov.server.service.catServer.CatServerProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,9 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ShowCatCallback implements CallbackHandler {
 
-    private final TelegramProducer telegramProducer;
-    private final ShowCatComponent showCatComponent;
-    private final CatRepository catRepository;
+    private final CatServerProducer catServerProducer;
 
     @Override
     public String getPrefix() {
@@ -28,46 +26,21 @@ public class ShowCatCallback implements CallbackHandler {
 
     @Override
     public void execute(TelegramMessageDto messageDto) {
-        List<Cat> cats = catRepository.getAllCats();
         String catId = CallbackPrefix.getPath(messageDto.getCallback());
-        Cat cat;
+        List<CatDto> catDtos;
         if (catId != null) {
-            cat = cats.stream()
-                    .filter(c -> !UUID.fromString(catId).equals(c.getId()))
-                    .findAny()
-                    .orElseThrow();
+            catDtos = List.of(CatDto.builder()
+                    .id(UUID.fromString(catId))
+                    .build());
         } else {
-            cat = cats.stream()
-                    .findAny()
-                    .orElseThrow();
+            catDtos = Collections.emptyList();
         }
-        TelegramMessageDto response = TelegramMessageDto.builder()
-                .action(ActionsEnum.SEND_PHOTO)
-                .chatId(messageDto.getChatId())
-                .text(showCatComponent.getMessageText(cat))
-                .inlineKeyboard(showCatComponent.getInlineKeyboard(cat))
-                .attachment(cat.getFilePath())
+        CatServerDto catServerDto = CatServerDto.builder()
+                .action(CatAction.SHOW_CAT)
+                .contextId(messageDto.getChatId())
+                .cats(catDtos)
                 .build();
 
-        telegramProducer.sendMessage(response);
-    }
-
-    public void executeNext(TelegramMessageDto messageDto, UUID catId) {
-        List<Cat> cats = catRepository.getAllCats();
-        Cat cat = cats.stream()
-                .filter(c -> !catId.equals(c.getId()))
-                .findAny()
-                .orElseThrow();
-        String context = CallbackPrefix.createPrefix(ECallbackPrefixes.SAVE_NAME);
-        TelegramMessageDto response = TelegramMessageDto.builder()
-                .action(ActionsEnum.SEND_MESSAGE)
-                .chatId(messageDto.getChatId())
-                .text(showCatComponent.getMessageText(cat))
-                .inlineKeyboard(showCatComponent.getInlineKeyboard(cat))
-                .context(context)
-                .attachment(cat.getFilePath())
-                .build();
-
-        telegramProducer.sendMessage(response);
+        catServerProducer.sendMessage(catServerDto);
     }
 }

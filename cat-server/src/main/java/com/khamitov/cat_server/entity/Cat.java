@@ -1,4 +1,4 @@
-package com.khamitov.server.model.entity;
+package com.khamitov.cat_server.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,4 +22,5 @@ public class Cat {
     private Integer likes;
     private Integer dislikes;
     private String filePath;
+    private Boolean accepted;
 }
